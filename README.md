@@ -1,6 +1,6 @@
-# DVWA + ModSecurity WAF Arena
+# 🧱 DVWA + ModSecurity WAF Arena
 
-This project sets up a local environment with [DVWA (Damn Vulnerable Web App)](https://github.com/digininja/DVWA) protected by [ModSecurity WAF](https://github.com/coreruleset/modsecurity-crs-docker) running the [OWASP Core Rule Set](https://coreruleset.org/).
+Quickly set up a local environment with [DVWA (Damn Vulnerable Web App)](https://github.com/digininja/DVWA) protected by [ModSecurity WAF](https://github.com/coreruleset/modsecurity-crs-docker) running the [OWASP Core Rule Set](https://coreruleset.org/).
 
 ## Setup
 
