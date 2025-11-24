@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    restart: always
+    environment:
+      - CHECK_DB_CONNECTION=true
+
+  waf:
+    image: owasp/modsecurity-crs:nginx
+    environment:
+      - PARANOIA=${PARANOIA:-2}
+      - ANOMALY_INBOUND=${ANOMALY_INBOUND:-5}
+      - ANOMALY_OUTBOUND=${ANOMALY_OUTBOUND:-6}
+      - BACKEND=http://dvwa:80
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./waf-error.conf:/etc/nginx/templates/includes/location_common.conf.template
+    depends_on:
+      - dvwa
+
+  setup:
+    image: curlimages/curl
+    volumes:
+      - ./setup-dvwa.sh:/setup-dvwa.sh
+    command: /setup-dvwa.sh
+    depends_on:
+      - dvwa
