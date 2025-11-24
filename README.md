@@ -4,12 +4,18 @@ This project sets up a local environment with [DVWA (Damn Vulnerable Web App)](h
 
 ## Setup
 
-1.  **Start the environment:**
+1.  **Clone the repo:**
+    ```bash
+    git clone https://github.com/mllamazares/dvwa-modsec-arena.git
+    cd dvwa-modsec-arena
+    ```
+
+2.  **Start the environment:**
     ```bash
     PARANOIA=2 ANOMALY_INBOUND=5 ANOMALY_OUTBOUND=6 docker-compose up
     ```
 
-2.  **Access the application:**
+3.  **Access the application:**
     Open your browser and navigate to `http://localhost:8080`.
     
     Default credentials: `admin` / `password`.
