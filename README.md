@@ -12,7 +12,7 @@ Quickly set up a local environment with [DVWA (Damn Vulnerable Web App)](https:/
 
 2.  **Start the environment:**
     ```bash
-    PARANOIA=2 ANOMALY_INBOUND=5 ANOMALY_OUTBOUND=6 docker-compose up
+    PARANOIA=1 ANOMALY_INBOUND=5 ANOMALY_OUTBOUND=6 docker-compose up
     ```
 
 3.  **Access the application:**

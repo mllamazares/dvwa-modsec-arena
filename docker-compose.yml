@@ -10,7 +10,7 @@ services:
   waf:
     image: owasp/modsecurity-crs:nginx
     environment:
-      - PARANOIA=${PARANOIA:-2}
+      - PARANOIA=${PARANOIA:-1}
       - ANOMALY_INBOUND=${ANOMALY_INBOUND:-5}
       - ANOMALY_OUTBOUND=${ANOMALY_OUTBOUND:-6}
       - BACKEND=http://dvwa:80
