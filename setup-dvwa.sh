@@ -1,32 +1,46 @@
 #!/bin/sh
 
 echo "Waiting for DVWA to be ready..."
-until curl -s http://dvwa:80/login.php > /dev/null; do
+until curl -s -o /dev/null -w "%{http_code}" http://dvwa:80/setup.php | grep -q "200"; do
     echo "Waiting for DVWA..."
     sleep 2
 done
 
-echo "Initializing database..."
-# Fetch the setup page to get the CSRF token and cookies
-curl -c /tmp/cookies.txt -s http://dvwa:80/setup.php > /tmp/setup_page.html
+echo "DVWA is ready. Initializing database..."
 
-# Extract the user_token
-token=$(grep "user_token" /tmp/setup_page.html | sed "s/.*value='\([a-f0-9]*\)'.*/\1/")
+attempts=0
+max_attempts=15
 
-if [ -z "$token" ]; then
-    echo "Failed to extract CSRF token."
-    exit 1
-fi
+while [ "$attempts" -lt "$max_attempts" ]; do
+    attempts=$((attempts + 1))
 
-echo "Found token: $token"
+    # Fetch the setup page to get the CSRF token and cookies
+    curl -c /tmp/cookies.txt -s http://dvwa:80/setup.php > /tmp/setup_page.html
 
-# The setup page requires a POST request to create the database with the token
-curl -b /tmp/cookies.txt -c /tmp/cookies.txt -s -L -X POST -d "create_db=Create+%2F+Reset+Database&user_token=$token" http://dvwa:80/setup.php | grep "Database has been created"
+    # Extract the user_token
+    token=$(grep "user_token" /tmp/setup_page.html | sed "s/.*value='\([a-f0-9]*\)'.*/\1/")
 
-if [ $? -eq 0 ]; then
-    echo "Database initialized successfully."
-else
-    echo "Failed to initialize database."
-    # Print the output for debugging if needed
-    # cat /tmp/setup_page.html
-fi
+    if [ -z "$token" ]; then
+        echo "Attempt $attempts/$max_attempts: Failed to extract CSRF token. Retrying..."
+        sleep 3
+        continue
+    fi
+
+    echo "Found token: $token"
+
+    # The setup page requires a POST request to create the database with the token
+    result=$(curl -b /tmp/cookies.txt -c /tmp/cookies.txt -s -L -X POST \
+        -d "create_db=Create+%2F+Reset+Database&user_token=$token" \
+        http://dvwa:80/setup.php)
+
+    if echo "$result" | grep -q "Setup successful"; then
+        echo "Database initialized successfully."
+        exit 0
+    fi
+
+    echo "Attempt $attempts/$max_attempts: DB creation failed (MariaDB may not be ready). Retrying..."
+    sleep 3
+done
+
+echo "Failed to initialize database after $max_attempts attempts."
+exit 1

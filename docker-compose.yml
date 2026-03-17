@@ -1,13 +1,29 @@
 version: '3'
 
 services:
-  dvwa:
-    image: vulnerables/web-dvwa:latest
+  db:
+    image: mariadb:10
     restart: always
     environment:
-      - CHECK_DB_CONNECTION=true
+      - MYSQL_ROOT_PASSWORD=dvwa
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=p@ssw0rd
     volumes:
-      - ./dvwa-config.php:/var/www/html/config/config.inc.php
+      - dvwa-db:/var/lib/mysql
+
+  dvwa:
+    image: ghcr.io/digininja/dvwa:latest
+    restart: always
+    environment:
+      - DB_SERVER=db
+      - DB_DATABASE=dvwa
+      - DB_USER=dvwa
+      - DB_PASSWORD=p@ssw0rd
+      - DEFAULT_SECURITY_LEVEL=low
+      - DISABLE_AUTHENTICATION=true
+    depends_on:
+      - db
 
   waf:
     image: owasp/modsecurity-crs:nginx
@@ -43,3 +59,6 @@ services:
     command: /setup-dvwa.sh
     depends_on:
       - dvwa
+
+volumes:
+  dvwa-db:

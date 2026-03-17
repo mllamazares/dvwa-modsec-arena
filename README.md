@@ -21,19 +21,25 @@ Authentication is disabled — no login required.
 
 2.  **Start the environment:**
     ```bash
-    PARANOIA=1 ANOMALY_INBOUND=5 ANOMALY_OUTBOUND=6 docker-compose up
+    PARANOIA=1 ANOMALY_INBOUND=5 ANOMALY_OUTBOUND=6 docker compose up
     ```
+    Wait for the `setup` container to print `Database initialized successfully.`
 
 3.  **Access the application:**
     - With WAF: `http://localhost:7979`
     - Without WAF: `http://localhost:7978`
 
+To fully reset the database and start fresh:
+```bash
+docker compose down -v
+```
+
 ## Testing
 
 ### Standard query (should pass on both endpoints)
 ```bash
-curl -I http://127.0.0.1:7979/login.php
-curl -I http://127.0.0.1:7978/login.php
+curl -I http://127.0.0.1:7979/
+curl -I http://127.0.0.1:7978/
 ```
 Expected: `HTTP/1.1 200 OK`
 
@@ -61,7 +67,7 @@ Expected: `403 Forbidden` (WAF) vs `200 OK` (direct)
 
 To view WAF logs (includes triggered rule details):
 ```bash
-docker-compose logs -f waf
+docker compose logs -f waf
 ```
 
 The ModSecurity audit log is also mounted locally at `./modsec-logs/audit.log` in JSON format.
