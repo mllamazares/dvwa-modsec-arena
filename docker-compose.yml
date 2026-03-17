@@ -6,6 +6,8 @@ services:
     restart: always
     environment:
       - CHECK_DB_CONNECTION=true
+    volumes:
+      - ./dvwa-config.php:/var/www/html/config/config.inc.php
 
   waf:
     image: owasp/modsecurity-crs:nginx
@@ -14,10 +16,23 @@ services:
       - ANOMALY_INBOUND=${ANOMALY_INBOUND:-5}
       - ANOMALY_OUTBOUND=${ANOMALY_OUTBOUND:-6}
       - BACKEND=http://dvwa:80
+      - MODSEC_AUDIT_ENGINE=On
+      - MODSEC_AUDIT_LOG_FORMAT=JSON
+      - MODSEC_AUDIT_LOG=/var/log/modsecurity/audit.log
     ports:
-      - "8080:8080"
+      - "7979:8080"
     volumes:
       - ./waf-error.conf:/etc/nginx/templates/includes/location_common.conf.template
+      - ./modsec-logs:/var/log/modsecurity
+    depends_on:
+      - dvwa
+
+  dvwa-direct:
+    image: nginx:alpine
+    ports:
+      - "7978:80"
+    volumes:
+      - ./nginx-nowaf.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - dvwa
 
